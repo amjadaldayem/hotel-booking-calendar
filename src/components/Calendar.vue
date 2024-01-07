@@ -1,6 +1,6 @@
 <template>
-  <table v-if="selectedWeek.length" class="base-table min-h-full w-full">
-    <tr>
+  <table v-if="selectedWeek.length" class="base-table min-h-full w-full grow">
+    <tr class="h-10">
       <th />
 
       <th v-for="({ date }, key) in selectedWeek" :key="key">
@@ -21,9 +21,11 @@
       </th>
     </tr>
 
-    <tr v-for="({ name }, key) in rooms" :key="key">
+    <tr class="align-top" v-for="({ name }, key) in rooms" :key="key">
       <td>
-        <p class="text-left font-medium">{{ name }}</p>
+        <div class="text-left text-sm font-medium">
+          {{ name }}
+        </div>
       </td>
 
       <td v-for="({ date }, key) in selectedWeek" :key="key">
