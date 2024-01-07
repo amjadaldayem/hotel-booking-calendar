@@ -5,28 +5,38 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
-  currentDate: moment().format('L')
+  selectedDate: moment().format('L'),
+  selectedWeek: []
 }
 
 const mutations = {
-  SET_CURRENT_DATE(state, date) {
-    state.currentDate = date
+  SET_DATE(state, date) {
+    state.selectedDate = date
+  },
+  SET_WEEK(state, week) {
+    state.selectedWeek = week
   }
 }
 
 const actions = {
-  setCurrentDate({ commit }, date) {
-    commit('SET_CURRENT_DATE', date)
+  setSelectedDate({ commit }, date) {
+    commit('SET_DATE', date)
   },
   setTodayDate({ commit }) {
     const todayDate = moment().format('L')
-    commit('SET_CURRENT_DATE', todayDate)
+    commit('SET_DATE', todayDate)
+  },
+  setWeek({ commit }, week) {
+    commit('SET_WEEK', week)
   }
 }
 
 const getters = {
-  getCurrentDate(state) {
-    return state.currentDate
+  getSelectedDate(state) {
+    return state.selectedDate
+  },
+  getSelectedWeek(state) {
+    return state.selectedWeek
   }
 }
 
