@@ -21,9 +21,9 @@
       </th>
     </tr>
 
-    <tr>
+    <tr v-for="({ name }, key) in rooms" :key="key">
       <td>
-        <p class="text-left">Hotel name</p>
+        <p class="text-left font-medium">{{ name }}</p>
       </td>
 
       <td v-for="({ date }, key) in selectedWeek" :key="key">
@@ -36,13 +36,11 @@
 </template>
 
 <script>
-import { options as jsonCalendarOptions } from '@/utils/json-calendar.config.js'
 import { WEEK_DAY_NAME_FORMAT } from '@/utils/moment.config'
-import { JsonCalendar } from 'json-calendar'
 import moment from 'moment'
 
 export default {
-  name: 'BaseCalendar',
+  name: 'Calendar',
   computed: {
     selectedDate() {
       return this.$store.getters.getSelectedDate
@@ -50,51 +48,13 @@ export default {
     selectedWeek() {
       return this.$store.getters.getSelectedWeek
     },
-    generateWeek() {
-      return (
-        !this.selectedWeek.length ||
-        !this.currentWeekIncludeCurrentDate(
-          this.selectedWeek,
-          this.selectedDate
-        )
-      )
-    }
-  },
-  watch: {
-    generateWeek: {
-      handler(value) {
-        if (value) {
-          this.setWeek()
-        }
-      },
-      immediate: true
+    rooms() {
+      return this.$store.getters.getRooms
     }
   },
   methods: {
-    setWeek() {
-      const { weeks, today } = new JsonCalendar({
-        ...jsonCalendarOptions,
-        today: new Date(this.selectedDate)
-      })
-
-      weeks.forEach((week) => {
-        const currentWeek = this.currentWeekIncludeCurrentDate(week, today)
-
-        if (currentWeek) {
-          this.$store.dispatch('setWeek', week)
-        }
-
-        return
-      })
-    },
     sameDate(date1, date2) {
       return moment(date1).isSame(date2)
-    },
-    currentWeekIncludeCurrentDate(selectedWeek, selectedDate) {
-      return (
-        selectedWeek.some(({ date }) => this.sameDate(date, selectedDate)) ??
-        false
-      )
     },
     getWeekDayAbbr(date) {
       const dayFullName = moment(date).format(WEEK_DAY_NAME_FORMAT)

@@ -1,7 +1,7 @@
 <template>
   <div class="flex max-h-5 items-center gap-1">
     <button
-      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow dark:bg-nav-bar-back"
+      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow outline-none dark:bg-nav-bar-back"
       @click="setBeforeDate"
     >
       <Icon
@@ -12,14 +12,14 @@
     </button>
 
     <button
-      class="border-nav-grey flex h-5 max-h-5 items-center justify-center rounded px-2 py-1 text-sm font-normal shadow dark:bg-nav-bar-back dark:text-white"
+      class="border-nav-grey flex h-5 max-h-5 items-center justify-center rounded px-2 py-1 text-sm font-normal shadow outline-none dark:bg-nav-bar-back dark:text-white"
       @click="setTodayDate"
     >
       Today
     </button>
 
     <button
-      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow dark:bg-nav-bar-back"
+      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow outline-none dark:bg-nav-bar-back"
       @click="setNextDate"
     >
       <Icon
