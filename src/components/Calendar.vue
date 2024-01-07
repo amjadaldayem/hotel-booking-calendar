@@ -21,16 +21,25 @@
       </th>
     </tr>
 
-    <tr class="align-top" v-for="({ name }, key) in rooms" :key="key">
+    <tr
+      class="align-top"
+      v-for="({ name, id: roomId }, key) in rooms"
+      :key="key"
+    >
       <td>
         <div class="text-left text-sm font-medium">
           {{ name }}
         </div>
       </td>
 
-      <td v-for="({ date }, key) in selectedWeek" :key="key">
-        <div :class="{ 'current-date': sameDate(date, selectedDate) }">
-          Day info
+      <td v-for="({ date, reservation }, key) in selectedWeek" :key="key">
+        <div
+          :class="[{ 'current-date': sameDate(date, selectedDate) }, 'flex']"
+        >
+          <Reservetion
+            v-if="includeDate(roomId, reservation)"
+            :reservation="getSelectedReservetion(reservation, roomId)"
+          />
         </div>
       </td>
     </tr>
@@ -38,11 +47,16 @@
 </template>
 
 <script>
+import Reservetion from '@/components/Reservation.vue'
 import { WEEK_DAY_NAME_FORMAT } from '@/utils/moment.config'
+import { RESERVATION_STATUS } from '@/utils/reservation.config'
 import moment from 'moment'
 
 export default {
   name: 'Calendar',
+  components: {
+    Reservetion
+  },
   computed: {
     selectedDate() {
       return this.$store.getters.getSelectedDate
@@ -55,6 +69,43 @@ export default {
     }
   },
   methods: {
+    getSelectedReservetion(reservationArray, roomId) {
+      return (
+        reservationArray.find(({ roomDetails }) => roomDetails.id === roomId) ??
+        null
+      )
+    },
+    includeDate(roomId, reservationArray) {
+      const roomDetails = this.getRoomDetails(roomId, reservationArray)
+
+      if (!roomDetails) return false
+
+      console.log()
+      return roomDetails
+    },
+    startDate(roomId, reservationArray) {
+      const roomDetails = this.getRoomDetails(roomId, reservationArray)
+
+      if (!roomDetails) return false
+
+      return roomDetails.status === RESERVATION_STATUS.start
+    },
+    endDate(roomId, reservationArray) {
+      const roomDetails = this.getRoomDetails(roomId, reservationArray)
+
+      if (!roomDetails) return false
+
+      return roomDetails.status === RESERVATION_STATUS.end
+    },
+    getRoomDetails(roomId, reservationArray) {
+      if (!reservationArray.length) return false
+
+      const reservation = this.getSelectedReservetion(reservationArray, roomId)
+
+      if (!reservation) return false
+
+      return reservation.roomDetails
+    },
     sameDate(date1, date2) {
       return moment(date1).isSame(date2)
     },
@@ -75,18 +126,22 @@ export default {
   td,
   tr,
   th {
-    @apply dark:border-table-border-dark border-table-border-light border p-1 text-right font-light;
+    @apply border border-table-border-light p-1 text-right font-light dark:border-table-border-dark;
   }
-}
 
-td,
-th {
-  &:has(> .current-date) {
-    @apply dark:bg-current-date-bg-dark bg-current-date-bg-light;
+  td,
+  th {
+    &:has(> .current-date) {
+      @apply bg-current-date-bg-light dark:bg-current-date-bg-dark;
 
-    .date-number {
-      @apply bg-base-red text-base-white;
+      .date-number {
+        @apply bg-base-red text-base-white;
+      }
     }
+  }
+
+  th {
+    @apply w-100/8;
   }
 }
 </style>

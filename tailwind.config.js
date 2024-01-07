@@ -13,6 +13,9 @@ module.exports = {
         'current-date-bg-dark': '#2A2C2D',
         'current-date-bg-light': '#F5F5F5',
         'nav-grey': '#E6E6E6'
+      },
+      spacing: {
+        '100/8': '12.5%'
       }
     }
   },

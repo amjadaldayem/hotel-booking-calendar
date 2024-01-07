@@ -28,68 +28,111 @@ export default {
     Calendar,
     Article
   },
+  data() {
+    return {
+      booking
+    }
+  },
   computed: {
+    needGenerateWeek() {
+      return !this.currentWeekIncludeCurrentDate(
+        this.selectedWeek,
+        this.selectedDate
+      )
+    },
     selectedWeek() {
       return this.$store.getters.getSelectedWeek
     },
     selectedDate() {
       return this.$store.getters.getSelectedDate
     },
-    selectedWeek() {
-      return this.$store.getters.getSelectedWeek
-    },
-    generateWeek() {
-      return (
-        !this.selectedWeek.length ||
-        !this.currentWeekIncludeCurrentDate(
-          this.selectedWeek,
-          this.selectedDate
-        )
-      )
+    rooms() {
+      return this.$store.getters.getRooms
     }
   },
   mounted() {
-    const rooms = []
-
-    booking.forEach(({ roomDetails }) => {
-      const missingRoom =
-        !rooms.length || !rooms.some(({ id }) => id === roomDetails.id)
-
-      if (missingRoom) {
-        rooms.push(roomDetails)
-      }
-    })
-
-    this.$store.dispatch('setHotels', rooms)
+    this.generateRooms()
+    this.generateWeek()
   },
   watch: {
-    generateWeek: {
-      handler(value) {
+    needGenerateWeek: {
+      async handler(value) {
         if (value) {
-          this.setWeek()
+          this.generateWeek()
+          this.setReservation()
         }
       },
       immediate: true
     }
   },
   methods: {
-    setWeek() {
+    generateWeek() {
       const { weeks, today } = new JsonCalendar({
         ...jsonCalendarOptions,
         today: new Date(this.selectedDate)
       })
-      weeks.forEach((week) => {
-        const currentWeek = this.currentWeekIncludeCurrentDate(week, today)
 
-        if (currentWeek) {
-          this.$store.dispatch('setWeek', week)
+      weeks.forEach((week) => {
+        const includeWeek = this.currentWeekIncludeCurrentDate(week, today)
+
+        if (includeWeek) {
+          const currentWeek = [...week].map((day) => {
+            const reservation = this.generateDateReservation(day.date)
+
+            return { ...day, reservation }
+          })
+
+          this.setWeek(currentWeek)
         }
 
         return
       })
     },
+    generateRooms() {
+      const rooms = []
+
+      booking.forEach(({ roomDetails }) => {
+        const missingRoom =
+          !rooms.length || !rooms.some(({ id }) => id === roomDetails.id)
+
+        if (missingRoom) {
+          rooms.push(roomDetails)
+        }
+      })
+
+      this.setRooms(rooms)
+    },
+    generateDateReservation(date) {
+      return [...booking]
+        .map((book) => {
+          const currentDate = new Date(moment(date))
+          const startDate = new Date(moment(book.start))
+          const endDate = new Date(moment(book.end))
+          const start = this.sameDate(startDate, currentDate)
+          const end = this.sameDate(endDate, currentDate)
+          const include =
+            moment(currentDate).isBefore(endDate) &&
+            moment(currentDate).isAfter(startDate)
+
+          const currentBook = { ...book }
+
+          if (include || start || end) {
+            return currentBook
+          }
+        })
+        .filter((book) => book)
+    },
+    setRooms(rooms) {
+      this.$store.dispatch('setHotels', rooms)
+    },
+    setWeek(week) {
+      this.$store.dispatch('setWeek', week)
+    },
     sameDate(date1, date2) {
       return moment(date1).isSame(date2)
+    },
+    setReservation() {
+      // this.rooms.forEach()
     },
     currentWeekIncludeCurrentDate(selectedWeek, selectedDate) {
       return (
