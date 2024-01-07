@@ -8,10 +8,13 @@
   },
   "dependencies": {
     "json-calendar": "^1.11.2",
+    "moment": "2.29.1",
+    "momentjs": "2.0.0",
     "vue": "^2.6.14",
-    "vuex": "^4.0.2"
+    "vuex": "3.6.2"
   },
   "devDependencies": {
+    "@iconify/vue2": "^4.1.1",
     "@vue/cli-service": "~5.0.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.33",
