@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import bookingMixin from '@/mixins/booking.js'
 import { ACTION_TARGET, DATE_FORMAT, ONE_DAY } from '@/utils/moment.config'
 import { Icon } from '@iconify/vue2'
 import moment from 'moment'
@@ -41,10 +42,8 @@ export default {
   components: {
     Icon
   },
+  mixins: [bookingMixin],
   computed: {
-    selectedDate() {
-      return this.$store.getters.getSelectedDate
-    },
     showPopup() {
       return this.$store.getters.getShowPopup
     }

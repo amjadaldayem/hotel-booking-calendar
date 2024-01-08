@@ -61,6 +61,7 @@
 <script>
 import Popup from '@/components/Popup.vue'
 import Reservetion from '@/components/Reservation.vue'
+import bookingMixin from '@/mixins/booking.js'
 import { WEEK_DAY_NAME_FORMAT } from '@/utils/moment.config'
 import moment from 'moment'
 
@@ -70,17 +71,7 @@ export default {
     Reservetion,
     Popup
   },
-  computed: {
-    selectedDate() {
-      return this.$store.getters.getSelectedDate
-    },
-    selectedWeek() {
-      return this.$store.getters.getSelectedWeek
-    },
-    rooms() {
-      return this.$store.getters.getRooms
-    }
-  },
+  mixins: [bookingMixin],
   methods: {
     getSelectedReservetions(reservationArray, roomId) {
       return (

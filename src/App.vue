@@ -13,10 +13,11 @@
 </template>
 
 <script>
-import booking from '@/booking.json'
+import bookingData from '@/booking.json'
 import Article from '@/components/Article.vue'
 import Calendar from '@/components/Calendar.vue'
 import NavBar from '@/components/NavBar.vue'
+import bookingMixin from '@/mixins/booking.js'
 import { options as jsonCalendarOptions } from '@/utils/json-calendar.config'
 import { JsonCalendar } from 'json-calendar'
 import moment from 'moment'
@@ -30,24 +31,16 @@ export default {
   },
   data() {
     return {
-      booking
+      bookingData
     }
   },
+  mixins: [bookingMixin],
   computed: {
     needGenerateWeek() {
       return !this.currentWeekIncludeCurrentDate(
         this.selectedWeek,
         this.selectedDate
       )
-    },
-    selectedWeek() {
-      return this.$store.getters.getSelectedWeek
-    },
-    selectedDate() {
-      return this.$store.getters.getSelectedDate
-    },
-    rooms() {
-      return this.$store.getters.getRooms
     }
   },
   mounted() {
@@ -90,7 +83,7 @@ export default {
     generateRooms() {
       const rooms = []
 
-      booking.forEach(({ roomDetails }) => {
+      bookingData.forEach(({ roomDetails }) => {
         const missingRoom =
           !rooms.length || !rooms.some(({ id }) => id === roomDetails.id)
 
@@ -102,7 +95,7 @@ export default {
       this.setRooms(rooms)
     },
     generateDateReservation(date) {
-      return [...booking]
+      return [...bookingData]
         .map((book) => {
           const currentDate = new Date(moment(date))
           const startDate = new Date(moment(book.start))

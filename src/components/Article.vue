@@ -9,15 +9,14 @@
 </template>
 
 <script>
+import bookingMixin from '@/mixins/booking.js'
 import { MONTH_NAME_FORMAT } from '@/utils/moment.config'
 import moment from 'moment'
 
 export default {
   name: 'App',
+  mixins: [bookingMixin],
   computed: {
-    selectedDate() {
-      return this.$store.getters.getSelectedDate
-    },
     selectedYear() {
       return moment(this.selectedDate).year()
     },
