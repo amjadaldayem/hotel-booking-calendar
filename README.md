@@ -1,4 +1,4 @@
-# hotel-booking-calendar
+# Hotel booking calendar
 
 ## Project setup
 ```
