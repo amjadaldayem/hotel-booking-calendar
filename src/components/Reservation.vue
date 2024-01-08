@@ -1,6 +1,6 @@
 <template>
   <div
-    class="my-4 flex min-h-10 w-full cursor-pointer gap-1 rounded bg-cyan-400 p-1 text-xs font-bold dark:bg-opacity-60 dark:text-base-white"
+    class="my-4 flex min-h-10 w-full cursor-pointer gap-1 rounded bg-cyan-400 bg-opacity-60 p-1 text-xs font-bold dark:text-base-white"
     @click="togglePopup(reservation)"
   >
     {{ reservation.name }}
