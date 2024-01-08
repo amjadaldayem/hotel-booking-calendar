@@ -1,27 +1,6 @@
 [
   {
     "id": 77072,
-    "name": "Vitalii",
-    "phone": "866-159-8491",
-    "email": "bpfeffle0@squidoo.com",
-    "typeOfApartments": "חדר זוגי",
-    "guestInfo": {
-      "adults": 10,
-      "children": 10
-    },
-    "start": "2023-11-30",
-    "duration": 8,
-    "timed": false,
-    "height": 69,
-    "type": "booked",
-    "roomDetails": {
-      "id": 2,
-      "name": "Premier Suite"
-    },
-    "end": "2023-12-1"
-  },
-  {
-    "id": 77072,
     "name": "Barnebas Pfeffle",
     "phone": "866-159-8491",
     "email": "bpfeffle0@squidoo.com",

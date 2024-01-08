@@ -16,6 +16,9 @@ module.exports = {
       },
       spacing: {
         '100/8': '12.5%'
+      },
+      margin: {
+        '1/2': '50%'
       }
     }
   },

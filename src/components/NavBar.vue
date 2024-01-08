@@ -1,7 +1,7 @@
 <template>
   <div class="flex max-h-5 items-center gap-1">
     <button
-      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow outline-none dark:bg-nav-bar-back"
+      class="flex h-5 w-5 items-center justify-center rounded border-nav-grey shadow outline-none dark:bg-nav-bar-back"
       @click="setBeforeDate"
     >
       <Icon
@@ -12,14 +12,14 @@
     </button>
 
     <button
-      class="border-nav-grey flex h-5 max-h-5 items-center justify-center rounded px-2 py-1 text-sm font-normal shadow outline-none dark:bg-nav-bar-back dark:text-white"
+      class="flex h-5 max-h-5 items-center justify-center rounded border-nav-grey px-2 py-1 text-sm font-normal shadow outline-none dark:bg-nav-bar-back dark:text-white"
       @click="setTodayDate"
     >
       Today
     </button>
 
     <button
-      class="border-nav-grey flex h-5 w-5 items-center justify-center rounded shadow outline-none dark:bg-nav-bar-back"
+      class="flex h-5 w-5 items-center justify-center rounded border-nav-grey shadow outline-none dark:bg-nav-bar-back"
       @click="setNextDate"
     >
       <Icon
@@ -44,13 +44,23 @@ export default {
   computed: {
     selectedDate() {
       return this.$store.getters.getSelectedDate
+    },
+    showPopup() {
+      return this.$store.getters.getShowPopup
     }
   },
   mounted() {
     document.addEventListener('keydown', this.keydownEvent)
   },
   methods: {
+    clearPopup() {
+      this.$store.dispatch('clearRoom')
+    },
     keydownEvent({ key }) {
+      if (this.showPopup) {
+        this.clearPopup()
+      }
+
       switch (key) {
         case 'ArrowLeft':
           this.setBeforeDate()

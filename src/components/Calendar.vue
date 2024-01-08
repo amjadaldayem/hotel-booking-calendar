@@ -1,61 +1,74 @@
 <template>
-  <table v-if="selectedWeek.length" class="base-table min-h-full w-full grow">
-    <tr class="h-10">
-      <th />
+  <div class="relative">
+    <table v-if="selectedWeek.length" class="base-table min-h-full w-full grow">
+      <tr class="h-10">
+        <th />
 
-      <th v-for="({ date }, key) in selectedWeek" :key="key">
-        <div
-          :class="[
-            { 'current-date': sameDate(date, selectedDate) },
-            'flex items-center justify-between'
-          ]"
-        >
+        <th v-for="({ date }, key) in selectedWeek" :key="key">
           <div
-            class="date-number flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white dark:bg-base-white dark:text-base-black"
+            :class="[
+              { 'current-date': sameDate(date, selectedDate) },
+              'flex items-center justify-between'
+            ]"
           >
-            {{ getDateNumber(date) }}
+            <div
+              class="date-number flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white dark:bg-base-white dark:text-base-black"
+            >
+              {{ getDateNumber(date) }}
+            </div>
+
+            {{ getWeekDayAbbr(date) }}
           </div>
+        </th>
+      </tr>
 
-          {{ getWeekDayAbbr(date) }}
-        </div>
-      </th>
-    </tr>
+      <tr
+        class="align-top"
+        v-for="({ name, id: roomId }, key) in rooms"
+        :key="key"
+      >
+        <td>
+          <div class="text-left text-sm font-medium">
+            {{ name }}
+          </div>
+        </td>
 
-    <tr
-      class="align-top"
-      v-for="({ name, id: roomId }, key) in rooms"
-      :key="key"
-    >
-      <td>
-        <div class="text-left text-sm font-medium">
-          {{ name }}
-        </div>
-      </td>
+        <td v-for="({ date, reservation }, key) in selectedWeek" :key="key">
+          <div
+            :class="[
+              { 'current-date': sameDate(date, selectedDate) },
+              'flex flex-wrap'
+            ]"
+          >
+            <Reservetion
+              v-for="(order, key) in getSelectedReservetions(
+                reservation,
+                roomId
+              )"
+              v-if="includeDate(roomId, reservation)"
+              :reservation="order"
+              :key="key"
+            />
+          </div>
+        </td>
+      </tr>
+    </table>
 
-      <td v-for="({ date, reservation }, key) in selectedWeek" :key="key">
-        <div
-          :class="[{ 'current-date': sameDate(date, selectedDate) }, 'flex']"
-        >
-          <Reservetion
-            v-if="includeDate(roomId, reservation)"
-            :reservation="getSelectedReservetion(reservation, roomId)"
-          />
-        </div>
-      </td>
-    </tr>
-  </table>
+    <Popup />
+  </div>
 </template>
 
 <script>
+import Popup from '@/components/Popup.vue'
 import Reservetion from '@/components/Reservation.vue'
 import { WEEK_DAY_NAME_FORMAT } from '@/utils/moment.config'
-import { RESERVATION_STATUS } from '@/utils/reservation.config'
 import moment from 'moment'
 
 export default {
   name: 'Calendar',
   components: {
-    Reservetion
+    Reservetion,
+    Popup
   },
   computed: {
     selectedDate() {
@@ -69,42 +82,30 @@ export default {
     }
   },
   methods: {
-    getSelectedReservetion(reservationArray, roomId) {
+    getSelectedReservetions(reservationArray, roomId) {
       return (
-        reservationArray.find(({ roomDetails }) => roomDetails.id === roomId) ??
-        null
+        reservationArray
+          .filter(({ roomDetails }) => roomDetails.id === roomId)
+          .sort(
+            (first, second) => new Date(first.start) - new Date(second.start)
+          ) ?? null
       )
     },
     includeDate(roomId, reservationArray) {
-      const roomDetails = this.getRoomDetails(roomId, reservationArray)
+      const rooms = this.getSelectedRoomReservations(roomId, reservationArray)
 
-      if (!roomDetails) return false
+      if (!rooms.length) return false
 
-      console.log()
-      return roomDetails
+      return rooms
     },
-    startDate(roomId, reservationArray) {
-      const roomDetails = this.getRoomDetails(roomId, reservationArray)
-
-      if (!roomDetails) return false
-
-      return roomDetails.status === RESERVATION_STATUS.start
-    },
-    endDate(roomId, reservationArray) {
-      const roomDetails = this.getRoomDetails(roomId, reservationArray)
-
-      if (!roomDetails) return false
-
-      return roomDetails.status === RESERVATION_STATUS.end
-    },
-    getRoomDetails(roomId, reservationArray) {
+    getSelectedRoomReservations(roomId, reservationArray) {
       if (!reservationArray.length) return false
 
-      const reservation = this.getSelectedReservetion(reservationArray, roomId)
+      const reservation = this.getSelectedReservetions(reservationArray, roomId)
 
-      if (!reservation) return false
+      if (!reservation.length) return false
 
-      return reservation.roomDetails
+      return reservation
     },
     sameDate(date1, date2) {
       return moment(date1).isSame(date2)
@@ -141,7 +142,11 @@ export default {
   }
 
   th {
-    @apply w-100/8;
+    @apply max-w-100/8;
+  }
+
+  tr {
+    @apply h-20;
   }
 }
 </style>

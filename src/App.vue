@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-screen w-full flex-col gap-4 bg-white p-4 font-light dark:bg-base-black dark:text-base-white"
+    class="flex min-h-screen min-w-full flex-col gap-4 bg-white p-4 font-light dark:bg-base-black dark:text-base-white"
   >
     <header class="flex items-center justify-between">
       <Article />
@@ -59,7 +59,6 @@ export default {
       async handler(value) {
         if (value) {
           this.generateWeek()
-          this.setReservation()
         }
       },
       immediate: true
@@ -130,9 +129,6 @@ export default {
     },
     sameDate(date1, date2) {
       return moment(date1).isSame(date2)
-    },
-    setReservation() {
-      // this.rooms.forEach()
     },
     currentWeekIncludeCurrentDate(selectedWeek, selectedDate) {
       return (
