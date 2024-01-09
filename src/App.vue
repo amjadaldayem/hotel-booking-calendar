@@ -44,14 +44,15 @@ export default {
     }
   },
   mounted() {
-    this.generateRooms()
     this.generateWeek()
+    this.generateRooms()
   },
   watch: {
     needGenerateWeek: {
       async handler(value) {
         if (value) {
           this.generateWeek()
+          this.generateRooms()
         }
       },
       immediate: true
@@ -69,9 +70,9 @@ export default {
 
         if (includeWeek) {
           const currentWeek = [...week].map((day) => {
-            const reservation = this.generateDateReservation(day.date)
+            const date = moment(day.date).format('L')
 
-            return { ...day, reservation }
+            return { ...day, date }
           })
 
           this.setWeek(currentWeek)
@@ -81,7 +82,7 @@ export default {
       })
     },
     generateRooms() {
-      const rooms = []
+      let rooms = []
 
       bookingData.forEach(({ roomDetails }) => {
         const missingRoom =
@@ -92,6 +93,38 @@ export default {
         }
       })
 
+      rooms.sort((room1, room2) => room1.id - room2.id)
+
+      rooms = rooms.map((room) => {
+        const roomBooking = this.bookingData
+          .filter(({ roomDetails }) => room.id === roomDetails.id)
+          .map((book) => ({
+            ...book,
+            start: moment(book.start).format('L'),
+            end: moment(book.end).format('L')
+          }))
+
+        const reservations = [...this.selectedWeek].map((day) => {
+          const reservation = []
+
+          roomBooking.forEach((book) => {
+            if (
+              book.end === day.date ||
+              day.date === book.start ||
+              (moment(book.end).isAfter(day.date) &&
+                moment(book.start).isBefore(day.date))
+            ) {
+              reservation.push(book)
+            }
+          })
+
+          reservation.sort((a, b) => b.id - a.id)
+
+          return { date: day.date, reservation }
+        })
+
+        return { ...room, reservations }
+      })
       this.setRooms(rooms)
     },
     generateDateReservation(date) {

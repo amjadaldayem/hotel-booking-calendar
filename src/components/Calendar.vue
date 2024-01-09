@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <table v-if="selectedWeek.length" class="base-table min-h-full w-full grow">
+    <!-- <table v-if="selectedWeek.length" class="row min-h-full w-full grow">
       <tr class="h-10">
         <th />
 
@@ -52,8 +52,44 @@
           </div>
         </td>
       </tr>
-    </table>
+    </table> -->
 
+    <!-- Dates -->
+    <div class="row grid grid-cols-8">
+      <div class="th" />
+
+      <div class="th" v-for="({ date }, index) in selectedWeek" :key="index">
+        <div
+          :class="[
+            { 'current-date': sameDate(date, selectedDate) },
+            'flex items-center justify-between'
+          ]"
+        >
+          <div
+            class="date-number flex h-5 w-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white dark:bg-base-white dark:text-base-black"
+          >
+            {{ getDateNumber(date) }}
+          </div>
+
+          {{ getWeekDayAbbr(date) }}
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="row relative grid grid-cols-8"
+      v-for="({ name, reservations }, key) in rooms"
+    >
+      <div class="td room-name">{{ name }}</div>
+
+      <div class="gap absolute left-0 top-0 grid-cols-8 bg-white p-5"></div>
+
+      <div
+        class="td"
+        v-for="({ reservation }, index) in reservations"
+        :key="index"
+      />
+    </div>
     <Popup />
   </div>
 </template>
@@ -114,15 +150,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.base-table {
-  td,
-  tr,
-  th {
-    @apply border border-table-border-light p-1 text-right font-light dark:border-table-border-dark;
+.row {
+  .th,
+  .td {
+    @apply border border-r-0 border-table-border-light p-1 text-right font-light dark:border-table-border-dark;
+
+    &:last-child {
+      @apply border-r;
+    }
   }
 
-  td,
-  th {
+  .td {
+    @apply border-t-0;
+
+    &.room-name {
+      @apply text-left text-sm font-bold;
+    }
+  }
+
+  .th,
+  .td {
     &:has(> .current-date) {
       @apply bg-current-date-bg-light dark:bg-current-date-bg-dark;
 
@@ -131,13 +178,14 @@ export default {
       }
     }
   }
+  // td,
 
-  th {
-    @apply max-w-100/8;
-  }
+  // th {
+  //   @apply max-w-100/8;
+  // }
 
-  tr {
-    @apply h-20;
-  }
+  // tr {
+  //   @apply h-20;
+  // }
 }
 </style>
