@@ -73,14 +73,14 @@ export default {
       this.$store.dispatch('setTodayDate')
     },
     setBeforeDate() {
-      const date = moment(this.selectedDate)
+      const date = moment(this.date)
         .subtract(ONE_DAY, ACTION_TARGET)
         .format(DATE_FORMAT)
 
       this.$store.dispatch('setSelectedDate', date)
     },
     setNextDate() {
-      const date = moment(this.selectedDate)
+      const date = moment(this.date)
         .add(ONE_DAY, ACTION_TARGET)
         .format(DATE_FORMAT)
 

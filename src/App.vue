@@ -29,134 +29,74 @@ export default {
     Calendar,
     Article
   },
-  data() {
-    return {
-      bookingData
-    }
-  },
   mixins: [bookingMixin],
   computed: {
     needGenerateWeek() {
-      return !this.currentWeekIncludeCurrentDate(
-        this.selectedWeek,
-        this.selectedDate
-      )
+      return !this.isDateInSelectedWeek(this.week, this.date)
     }
-  },
-  mounted() {
-    this.generateWeek()
-    this.generateRooms()
   },
   watch: {
     needGenerateWeek: {
-      async handler(value) {
-        if (value) {
-          this.generateWeek()
-          this.generateRooms()
+      async handler(boolean) {
+        if (boolean) {
+          await this.buildWeek()
         }
       },
       immediate: true
     }
   },
   methods: {
-    generateWeek() {
-      const { weeks, today } = new JsonCalendar({
+    async buildWeek() {
+      this.calculateWeek()
+      this.calculateBooking()
+      this.calculateRooms()
+    },
+    getCalendar() {
+      return new JsonCalendar({
         ...jsonCalendarOptions,
-        today: new Date(this.selectedDate)
-      })
-
-      weeks.forEach((week) => {
-        const includeWeek = this.currentWeekIncludeCurrentDate(week, today)
-
-        if (includeWeek) {
-          const currentWeek = [...week].map((day) => {
-            const date = moment(day.date).format('L')
-
-            return { ...day, date }
-          })
-
-          this.setWeek(currentWeek)
-        }
-
-        return
+        today: new Date(this.date)
       })
     },
-    generateRooms() {
-      let rooms = []
+    calculateWeek() {
+      const { weeks, today } = this.getCalendar()
 
-      bookingData.forEach(({ roomDetails }) => {
-        const missingRoom =
-          !rooms.length || !rooms.some(({ id }) => id === roomDetails.id)
+      const currentWeek = weeks
+        .find((week) => this.isDateInSelectedWeek(week, today))
+        .map((day) => ({ date: this.getFullDate(day.date) }))
 
-        if (missingRoom) {
-          rooms.push(roomDetails)
-        }
-      })
+      this.setWeek(currentWeek)
+    },
+    calculateBooking() {
+      const books = bookingData.filter(({ start, end }) =>
+        this.week.some(({ date }) =>
+          this.dateIncludePeriod(date, { start, end })
+        )
+      )
 
-      rooms.sort((room1, room2) => room1.id - room2.id)
+      this.setBooking(books)
+    },
+    calculateRooms() {
+      const rooms = [
+        ...new Set(
+          [...this.booking].map(({ roomDetails: { name } }) => name).sort()
+        )
+      ].map((name) => ({ name }))
 
-      rooms = rooms.map((room) => {
-        const roomBooking = this.bookingData
-          .filter(({ roomDetails }) => room.id === roomDetails.id)
-          .map((book) => ({
-            ...book,
-            start: moment(book.start).format('L'),
-            end: moment(book.end).format('L')
-          }))
-
-        const reservations = [...this.selectedWeek].map((day) => {
-          const reservation = []
-
-          roomBooking.forEach((book) => {
-            if (
-              book.end === day.date ||
-              day.date === book.start ||
-              (moment(book.end).isAfter(day.date) &&
-                moment(book.start).isBefore(day.date))
-            ) {
-              reservation.push(book)
-            }
-          })
-
-          reservation.sort((a, b) => b.id - a.id)
-
-          return { date: day.date, reservation }
-        })
-
-        return { ...room, reservations }
-      })
       this.setRooms(rooms)
     },
-    generateDateReservation(date) {
-      return [...bookingData]
-        .map((book) => {
-          const currentDate = new Date(moment(date))
-          const startDate = new Date(moment(book.start))
-          const endDate = new Date(moment(book.end))
-          const start = this.sameDate(startDate, currentDate)
-          const end = this.sameDate(endDate, currentDate)
-          const include =
-            moment(currentDate).isBefore(endDate) &&
-            moment(currentDate).isAfter(startDate)
+    dateIncludePeriod(currentDate, { start, end }) {
+      const fullCurrentDate = this.getFullDate(currentDate)
+      const fullStartDate = this.getFullDate(start)
+      const fullEndDate = this.getFullDate(end)
 
-          const currentBook = { ...book }
-
-          if (include || start || end) {
-            return currentBook
-          }
-        })
-        .filter((book) => book)
+      return (
+        fullEndDate === fullCurrentDate ||
+        fullCurrentDate === fullStartDate ||
+        (moment(fullEndDate).isAfter(fullCurrentDate) &&
+          moment(fullStartDate).isBefore(fullCurrentDate))
+      )
     },
-    setRooms(rooms) {
-      this.$store.dispatch('setHotels', rooms)
-    },
-    setWeek(week) {
-      this.$store.dispatch('setWeek', week)
-    },
-    sameDate(date1, date2) {
-      return moment(date1).isSame(date2)
-    },
-    currentWeekIncludeCurrentDate(selectedWeek, selectedDate) {
+    isDateInSelectedWeek(selectedWeek, selectedDate) {
       return (
         selectedWeek.some(({ date }) => this.sameDate(date, selectedDate)) ??
         false

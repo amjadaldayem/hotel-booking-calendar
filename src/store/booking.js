@@ -5,20 +5,24 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 const state = {
-  selectedDate: moment().format('L'),
-  selectedWeek: [],
-  rooms: []
+  date: moment().format('L'),
+  week: [],
+  rooms: [],
+  booking: []
 }
 
 const mutations = {
   SET_DATE(state, date) {
-    state.selectedDate = date
+    state.date = date
   },
   SET_WEEK(state, week) {
-    state.selectedWeek = week
+    state.week = week
   },
   SET_ROOMS(state, rooms) {
     state.rooms = rooms
+  },
+  SET_BOOKS(state, booking) {
+    state.booking = booking
   }
 }
 
@@ -35,18 +39,24 @@ const actions = {
   },
   setHotels({ commit }, rooms) {
     commit('SET_ROOMS', rooms)
+  },
+  setBooking({ commit }, booking) {
+    commit('SET_BOOKS', booking)
   }
 }
 
 const getters = {
-  getSelectedDate(state) {
-    return state.selectedDate
+  getDate(state) {
+    return state.date
   },
-  getSelectedWeek(state) {
-    return state.selectedWeek
+  getWeek(state) {
+    return state.week
   },
   getRooms(state) {
     return state.rooms
+  },
+  getBooking(state) {
+    return state.booking
   }
 }
 

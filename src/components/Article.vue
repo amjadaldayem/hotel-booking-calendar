@@ -18,10 +18,10 @@ export default {
   mixins: [bookingMixin],
   computed: {
     selectedYear() {
-      return moment(this.selectedDate).year()
+      return moment(this.date).year()
     },
     selectedMoth() {
-      return moment(this.selectedDate).format(MONTH_NAME_FORMAT)
+      return moment(this.date).format(MONTH_NAME_FORMAT)
     }
   }
 }
