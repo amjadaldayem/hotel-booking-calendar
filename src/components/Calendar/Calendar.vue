@@ -1,20 +1,25 @@
 <template>
-  <div class="relative">
+  <div ref="calendarElement" class="relative">
     <CalendarHead />
 
     <div
       class="row relative grid grid-cols-8"
-      v-for="({ name, reservations }, key) in rooms"
+      v-for="(room, key) in rooms"
       :key="key"
     >
-      <div class="td room-name">{{ name }}</div>
+      <div class="td room-name h-[200px]">{{ room.name }}</div>
 
       <div
-        class="gap absolute left-0 top-0 col-start-2 grid-cols-8 bg-red-500 p-2"
-      />
+        class="h-inherit reservation-container absolute z-10 col-start-2 w-full"
+      >
+        <ReservationItem
+          v-for="book in getBookingForRoom(room)"
+          :reservation="book"
+        />
+      </div>
 
       <div
-        v-for="({ reservation, date }, index) in reservations"
+        v-for="({ date }, index) in week"
         :class="['td', { 'current-date': sameDate(currentDate, date) }]"
         :key="index"
       />
@@ -26,15 +31,37 @@
 <script>
 import CalendarHead from '@/components/Calendar/CalendarHead.vue'
 import Popup from '@/components/Popup.vue'
+import ReservationItem from '@/components/ReservationItem.vue'
 import bookingMixin from '@/mixins/booking.js'
 
 export default {
   name: 'Calendar',
   components: {
+    ReservationItem,
     Popup,
     CalendarHead
   },
-  mixins: [bookingMixin]
+  mixins: [bookingMixin],
+  watch: {
+    week: {
+      handler(value) {
+        this.$nextTick(
+          console.log(document.querySelectorAll('.reservation-container'))
+        )
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+  methods: {
+    getBookingForRoom(room) {
+      return (
+        this.booking.filter(
+          ({ roomDetails: { name } }) => name === room.name
+        ) ?? []
+      )
+    }
+  }
 }
 </script>
 
