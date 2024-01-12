@@ -15,7 +15,7 @@
 <script>
 import bookingData from '@/booking.json'
 import Article from '@/components/Article.vue'
-import Calendar from '@/components/Calendar.vue'
+import Calendar from '@/components/Calendar/Calendar.vue'
 import NavBar from '@/components/NavBar.vue'
 import bookingMixin from '@/mixins/booking.js'
 import { options as jsonCalendarOptions } from '@/utils/json-calendar.config'
@@ -32,7 +32,7 @@ export default {
   mixins: [bookingMixin],
   computed: {
     needGenerateWeek() {
-      return !this.isDateInSelectedWeek(this.week, this.date)
+      return !this.isDateInSelectedWeek(this.week, this.currentDate)
     }
   },
   watch: {
@@ -50,12 +50,6 @@ export default {
       this.calculateWeek()
       this.calculateBooking()
       this.calculateRooms()
-    },
-    getCalendar() {
-      return new JsonCalendar({
-        ...jsonCalendarOptions,
-        today: new Date(this.date)
-      })
     },
     calculateWeek() {
       const { weeks, today } = this.getCalendar()
@@ -95,6 +89,12 @@ export default {
         (moment(fullEndDate).isAfter(fullCurrentDate) &&
           moment(fullStartDate).isBefore(fullCurrentDate))
       )
+    },
+    getCalendar() {
+      return new JsonCalendar({
+        ...jsonCalendarOptions,
+        today: new Date(this.currentDate)
+      })
     },
     isDateInSelectedWeek(selectedWeek, selectedDate) {
       return (

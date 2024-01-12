@@ -6,8 +6,8 @@ export default {
     week() {
       return this.$store.getters.getWeek
     },
-    date() {
-      return this.$store.getters.getDate
+    currentDate() {
+      return this.$store.getters.getCurrentDate
     },
     rooms() {
       return this.$store.getters.getRooms
@@ -31,6 +31,9 @@ export default {
     },
     setWeek(week) {
       this.$store.dispatch('setWeek', week)
+    },
+    getDateNumber(date) {
+      return moment(date).date()
     }
   }
 }
