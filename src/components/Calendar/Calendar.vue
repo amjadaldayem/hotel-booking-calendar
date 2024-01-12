@@ -1,13 +1,13 @@
 <template>
-  <div ref="calendarElement" class="relative">
+  <div class="relative">
     <CalendarHead />
 
     <div
       class="row relative grid grid-cols-8"
-      v-for="(room, key) in rooms"
-      :key="key"
+      v-for="(room, index) in rooms"
+      :key="index"
     >
-      <div class="td room-name h-[200px]">{{ room.name }}</div>
+      <div class="td room-name h-[150px]">{{ room.name }}</div>
 
       <div
         class="h-inherit reservation-container absolute z-10 col-start-2 w-full"
@@ -42,17 +42,6 @@ export default {
     CalendarHead
   },
   mixins: [bookingMixin],
-  watch: {
-    week: {
-      handler(value) {
-        this.$nextTick(
-          console.log(document.querySelectorAll('.reservation-container'))
-        )
-      },
-      deep: true,
-      immediate: true
-    }
-  },
   methods: {
     getBookingForRoom(room) {
       return (

@@ -1,8 +1,8 @@
 <template>
-  <div class="h-inherit grid grid-cols-7 p-2">
+  <div class="h-inherit grid grid-cols-7 p-2 pr-0">
     <div
       :class="[
-        `flex min-h-10 cursor-pointer rounded bg-cyan-400 bg-opacity-60 p-1 text-xs font-bold dark:text-base-white`,
+        `ml-2 mr-2 flex min-h-10 cursor-pointer rounded bg-cyan-400 bg-opacity-60 p-1 text-xs font-bold dark:text-base-white`,
         getFromClass(reservation),
         getEndClass(reservation)
       ]"
