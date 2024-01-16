@@ -9,14 +9,17 @@
     </header>
 
     <Calendar />
+
+    <Popup />
   </div>
 </template>
 
 <script>
 import bookingData from '@/booking.json'
 import Article from '@/components/Article.vue'
-import Calendar from '@/components/Calendar.vue'
+import Calendar from '@/components/Calendar/Calendar.vue'
 import NavBar from '@/components/NavBar.vue'
+import Popup from '@/components/Popup.vue'
 import bookingMixin from '@/mixins/booking.js'
 import { options as jsonCalendarOptions } from '@/utils/json-calendar.config'
 import { JsonCalendar } from 'json-calendar'
@@ -25,105 +28,79 @@ import moment from 'moment'
 export default {
   name: 'App',
   components: {
+    Popup,
     NavBar,
     Calendar,
     Article
   },
-  data() {
-    return {
-      bookingData
-    }
-  },
   mixins: [bookingMixin],
   computed: {
     needGenerateWeek() {
-      return !this.currentWeekIncludeCurrentDate(
-        this.selectedWeek,
-        this.selectedDate
-      )
+      return !this.isDateInSelectedWeek(this.week, this.currentDate)
     }
-  },
-  mounted() {
-    this.generateRooms()
-    this.generateWeek()
   },
   watch: {
     needGenerateWeek: {
-      async handler(value) {
-        if (value) {
-          this.generateWeek()
+      async handler(boolean) {
+        if (boolean) {
+          await this.buildWeek()
         }
       },
       immediate: true
     }
   },
   methods: {
-    generateWeek() {
-      const { weeks, today } = new JsonCalendar({
-        ...jsonCalendarOptions,
-        today: new Date(this.selectedDate)
-      })
-
-      weeks.forEach((week) => {
-        const includeWeek = this.currentWeekIncludeCurrentDate(week, today)
-
-        if (includeWeek) {
-          const currentWeek = [...week].map((day) => {
-            const reservation = this.generateDateReservation(day.date)
-
-            return { ...day, reservation }
-          })
-
-          this.setWeek(currentWeek)
-        }
-
-        return
-      })
+    async buildWeek() {
+      this.calculateWeek()
+      this.calculateBooking()
+      this.calculateRooms()
     },
-    generateRooms() {
-      const rooms = []
+    calculateWeek() {
+      const { weeks, today } = this.getCalendar()
 
-      bookingData.forEach(({ roomDetails }) => {
-        const missingRoom =
-          !rooms.length || !rooms.some(({ id }) => id === roomDetails.id)
+      const currentWeek = weeks
+        .find((week) => this.isDateInSelectedWeek(week, today))
+        .map((day) => ({ date: this.getFullDate(day.date) }))
 
-        if (missingRoom) {
-          rooms.push(roomDetails)
-        }
-      })
+      this.setWeek(currentWeek)
+    },
+    calculateBooking() {
+      const books = bookingData.filter(({ start, end }) =>
+        this.week.some(({ date }) =>
+          this.dateIncludePeriod(date, { start, end })
+        )
+      )
+
+      this.setBooking(books)
+    },
+    calculateRooms() {
+      const rooms = [
+        ...new Set(
+          [...this.booking].map(({ roomDetails: { name } }) => name).sort()
+        )
+      ].map((name) => ({ name }))
 
       this.setRooms(rooms)
     },
-    generateDateReservation(date) {
-      return [...bookingData]
-        .map((book) => {
-          const currentDate = new Date(moment(date))
-          const startDate = new Date(moment(book.start))
-          const endDate = new Date(moment(book.end))
-          const start = this.sameDate(startDate, currentDate)
-          const end = this.sameDate(endDate, currentDate)
-          const include =
-            moment(currentDate).isBefore(endDate) &&
-            moment(currentDate).isAfter(startDate)
+    dateIncludePeriod(currentDate, { start, end }) {
+      const fullCurrentDate = this.getFullDate(currentDate)
+      const fullStartDate = this.getFullDate(start)
+      const fullEndDate = this.getFullDate(end)
 
-          const currentBook = { ...book }
-
-          if (include || start || end) {
-            return currentBook
-          }
-        })
-        .filter((book) => book)
+      return (
+        fullEndDate === fullCurrentDate ||
+        fullCurrentDate === fullStartDate ||
+        (moment(fullEndDate).isAfter(fullCurrentDate) &&
+          moment(fullStartDate).isBefore(fullCurrentDate))
+      )
     },
-    setRooms(rooms) {
-      this.$store.dispatch('setHotels', rooms)
+    getCalendar() {
+      return new JsonCalendar({
+        ...jsonCalendarOptions,
+        today: new Date(this.currentDate)
+      })
     },
-    setWeek(week) {
-      this.$store.dispatch('setWeek', week)
-    },
-    sameDate(date1, date2) {
-      return moment(date1).isSame(date2)
-    },
-    currentWeekIncludeCurrentDate(selectedWeek, selectedDate) {
+    isDateInSelectedWeek(selectedWeek, selectedDate) {
       return (
         selectedWeek.some(({ date }) => this.sameDate(date, selectedDate)) ??
         false

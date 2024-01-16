@@ -3,6 +3,9 @@ module.exports = {
   content: ['./src/**/*.{html,js,vue,ts}'],
   theme: {
     extend: {
+      height: {
+        inherit: 'inherit'
+      },
       colors: {
         'table-border-light': '#C7C7CB',
         'table-border-dark': '#4D4D4D',

@@ -2,10 +2,10 @@
   <div
     ref="target"
     v-if="showPopup"
-    class="mx-1/2 absolute bottom-0 left-0 top-1/4 mt-9 flex h-min flex-col gap-2 rounded-lg border border-table-border-light bg-white p-4 text-left text-base-black shadow ring-0 dark:border-table-border-dark dark:bg-base-black dark:text-base-white"
+    class="absolute bottom-0 left-0 top-1/4 z-20 mx-1/2 mt-9 flex h-min flex-col gap-2 rounded-lg border border-table-border-light bg-white p-4 text-left text-base-black shadow ring-0 dark:border-table-border-dark dark:bg-base-black dark:text-base-white"
     v-click-outside="clearPopup"
   >
-    <div class="text-lg font-bold">{{ reservation.name }}</div>
+    <div class="border-b pb-2 text-lg font-bold">{{ reservation.name }}</div>
     <div class="font-normal">{{ reservation.email }}</div>
     <div class="font-normal">{{ reservation.phone }}</div>
 
