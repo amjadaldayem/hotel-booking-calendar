@@ -9,6 +9,8 @@
     </header>
 
     <Calendar />
+
+    <Popup />
   </div>
 </template>
 
@@ -17,6 +19,7 @@ import bookingData from '@/booking.json'
 import Article from '@/components/Article.vue'
 import Calendar from '@/components/Calendar/Calendar.vue'
 import NavBar from '@/components/NavBar.vue'
+import Popup from '@/components/Popup.vue'
 import bookingMixin from '@/mixins/booking.js'
 import { options as jsonCalendarOptions } from '@/utils/json-calendar.config'
 import { JsonCalendar } from 'json-calendar'
@@ -25,6 +28,7 @@ import moment from 'moment'
 export default {
   name: 'App',
   components: {
+    Popup,
     NavBar,
     Calendar,
     Article
